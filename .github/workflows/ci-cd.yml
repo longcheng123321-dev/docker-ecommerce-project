@@ -25,14 +25,60 @@ jobs:
           cd backend
           mvn -B package -DskipTests
 
-      - name: Build Docker images
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker images
         run: |
-          docker compose build --no-cache
+          # 设置镜像标签
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          
+          # 构建并推送后端镜像
+          docker build -t longcheng123321/ecommerce-backend:latest \
+                       -t longcheng123321/ecommerce-backend:$SHORT_SHA \
+                       -t longcheng123321/ecommerce-backend:$TIMESTAMP \
+                       -f backend/Dockerfile backend
+          
+          docker push longcheng123321/ecommerce-backend:latest
+          docker push longcheng123321/ecommerce-backend:$SHORT_SHA
+          docker push longcheng123321/ecommerce-backend:$TIMESTAMP
+          
+          # 构建并推送前端镜像（如果有）
+          if [ -f "frontend/Dockerfile" ]; then
+            docker build -t longcheng123321/ecommerce-frontend:latest \
+                         -t longcheng123321/ecommerce-frontend:$SHORT_SHA \
+                         -t longcheng123321/ecommerce-frontend:$TIMESTAMP \
+                         -f frontend/Dockerfile frontend
+            
+            docker push longcheng123321/ecommerce-frontend:latest
+            docker push longcheng123321/ecommerce-frontend:$SHORT_SHA
+            docker push longcheng123321/ecommerce-frontend:$TIMESTAMP
+          fi
 
       - name: Test containers startup
         run: |
           docker compose up -d
-          sleep 60
+          sleep 30
           docker compose ps
           docker compose logs backend | tail -20
+          
+      - name: Clean up
+        run: |
+          docker compose down -v
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "Deployment would happen here"
+          echo "Images are now available on Docker Hub:"
+          echo "- longcheng123321/ecommerce-backend:latest"
+          echo "- longcheng123321/ecommerce-frontend:latest (if built)"
