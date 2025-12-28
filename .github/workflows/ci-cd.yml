@@ -13,13 +13,16 @@ name: CI/CD Pipeline on:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-plugin
       - name: Build JAR with Maven
         run: |
           cd backend
           mvn -B package -DskipTests
       - name: Build Docker images
-        run: |
-          docker compose build --no-cache
+        run: docker compose build --no-cache
       - name: Test containers startup
         run: |
           docker compose up -d
