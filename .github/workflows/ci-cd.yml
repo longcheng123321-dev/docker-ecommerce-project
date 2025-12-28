@@ -20,20 +20,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Docker Compose
-        run: |
-          DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
-          mkdir -p $DOCKER_CONFIG/cli-plugins
-          curl -SL https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
-          chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-
       - name: Build JAR with Maven
         run: |
           cd backend
           mvn -B package -DskipTests
 
       - name: Build Docker images
-        run: docker compose build --no-cache
+        run: |
+          docker compose build --no-cache
 
       - name: Test containers startup
         run: |
@@ -41,3 +35,4 @@ jobs:
           sleep 60
           docker compose ps
           docker compose logs backend | tail -20
+
