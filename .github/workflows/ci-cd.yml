@@ -1,28 +1,38 @@
-name: CI/CD Pipeline on:
+name: CI/CD Pipeline
+
+on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ] jobs:
+    branches: [ main ]
+
+jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Install Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose-plugin
+
       - name: Build JAR with Maven
         run: |
           cd backend
           mvn -B package -DskipTests
+
       - name: Build Docker images
         run: docker compose build --no-cache
+
       - name: Test containers startup
         run: |
           docker compose up -d
