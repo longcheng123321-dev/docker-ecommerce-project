@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gzu.ecommerce.mapper.CartMapper">
+
+    <select id="findBySession" resultType="com.gzu.ecommerce.entity.CartItem">
+        SELECT id, session_id AS sessionId, product_id AS productId, quantity
+        FROM cart_item
+        WHERE session_id = #{sessionId}
+    </select>
+
+    <select id="findBySessionAndProduct" resultType="com.gzu.ecommerce.entity.CartItem">
+        SELECT id, session_id AS sessionId, product_id AS productId, quantity
+        FROM cart_item
+        WHERE session_id = #{sessionId} AND product_id = #{productId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cart_item (session_id, product_id, quantity)
+        VALUES (#{sessionId}, #{productId}, #{quantity})
+    </insert>
+
+    <update id="update">
+        UPDATE cart_item
+        SET quantity = #{quantity}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBySessionAndProduct">
+        DELETE FROM cart_item
+        WHERE session_id = #{sessionId} AND product_id = #{productId}
+    </delete>
+
+    <delete id="clearBySession">
+        DELETE FROM cart_item WHERE session_id = #{sessionId}
+    </delete>
+
+</mapper>

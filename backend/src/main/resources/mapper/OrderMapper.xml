@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gzu.ecommerce.mapper.OrderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders (session_id, total_amount, status)
+        VALUES (#{sessionId}, #{totalAmount}, #{status})
+    </insert>
+
+    <select id="findById" resultType="com.gzu.ecommerce.entity.Order">
+        SELECT id, session_id AS sessionId, total_amount AS totalAmount, status, create_time AS createTime
+        FROM orders
+        WHERE id = #{id}
+    </select>
+
+    <select id="findBySession" resultType="com.gzu.ecommerce.entity.Order">
+        SELECT id, session_id AS sessionId, total_amount AS totalAmount, status, create_time AS createTime
+        FROM orders
+        WHERE session_id = #{sessionId}
+        ORDER BY create_time DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE orders
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+</mapper>
