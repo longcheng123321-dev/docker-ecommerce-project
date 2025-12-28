@@ -1,4 +1,4 @@
-FROM docker.1ms.run/library/nginx:alpine
+FROM nginx:alpine
 
 # 复制自定义配置文件
 COPY nginx.conf /etc/nginx/conf.d/default.conf
